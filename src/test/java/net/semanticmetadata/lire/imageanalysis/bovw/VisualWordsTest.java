@@ -42,8 +42,9 @@ package net.semanticmetadata.lire.imageanalysis.bovw;
 import junit.framework.TestCase;
 import net.semanticmetadata.lire.DocumentBuilder;
 import net.semanticmetadata.lire.ImageSearchHits;
-import net.semanticmetadata.lire.impl.SurfDocumentBuilder;
-import net.semanticmetadata.lire.impl.VisualWordsImageSearcher;
+import net.semanticmetadata.lire.impl.docbuilder.SurfDocumentBuilder;
+import net.semanticmetadata.lire.impl.searcher.VisualWordsImageSearcher;
+
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;

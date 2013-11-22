@@ -40,8 +40,9 @@
 package net.semanticmetadata.lire;
 
 import junit.framework.TestCase;
-import net.semanticmetadata.lire.impl.ChainedDocumentBuilder;
-import net.semanticmetadata.lire.impl.VisualWordsImageSearcher;
+import net.semanticmetadata.lire.impl.docbuilder.ChainedDocumentBuilder;
+import net.semanticmetadata.lire.impl.searcher.VisualWordsImageSearcher;
+
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;

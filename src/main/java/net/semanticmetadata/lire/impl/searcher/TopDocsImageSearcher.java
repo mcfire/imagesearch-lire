@@ -36,10 +36,13 @@
  * (c) 2002-2013 by Mathias Lux (mathias@juggle.at)
  *     http://www.semanticmetadata.net/lire, http://www.lire-project.net
  */
-package net.semanticmetadata.lire.impl;
+package net.semanticmetadata.lire.impl.searcher;
 
 import net.semanticmetadata.lire.ImageSearchHits;
 import net.semanticmetadata.lire.imageanalysis.LireFeature;
+import net.semanticmetadata.lire.impl.SimpleImageSearchHits;
+import net.semanticmetadata.lire.impl.SimpleResult;
+import net.semanticmetadata.lire.impl.docbuilder.GenericDocumentBuilder;
 import net.semanticmetadata.lire.utils.ImageUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;

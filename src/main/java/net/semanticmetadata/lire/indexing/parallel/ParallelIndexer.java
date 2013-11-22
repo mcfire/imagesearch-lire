@@ -53,7 +53,7 @@ import java.util.Stack;
 import javax.imageio.ImageIO;
 
 import net.semanticmetadata.lire.DocumentBuilderFactory;
-import net.semanticmetadata.lire.impl.ChainedDocumentBuilder;
+import net.semanticmetadata.lire.impl.docbuilder.ChainedDocumentBuilder;
 import net.semanticmetadata.lire.indexing.LireCustomCodec;
 import net.semanticmetadata.lire.utils.LuceneUtils;
 

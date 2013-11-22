@@ -36,63 +36,79 @@
  * (c) 2002-2013 by Mathias Lux (mathias@juggle.at)
  *  http://www.semanticmetadata.net/lire, http://www.lire-project.net
  *
- * Updated: 21.04.13 08:59
+ * Updated: 21.04.13 09:06
  */
-
-package net.semanticmetadata.lire.impl;
+package net.semanticmetadata.lire.impl.docbuilder;
 
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Logger;
 
 import net.semanticmetadata.lire.AbstractDocumentBuilder;
 import net.semanticmetadata.lire.DocumentBuilder;
-import net.semanticmetadata.lire.imageanalysis.SurfFeature;
+import net.semanticmetadata.lire.imageanalysis.sift.Extractor;
+import net.semanticmetadata.lire.imageanalysis.sift.Feature;
 import net.semanticmetadata.lire.indexing.parallel.ImageInfo;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.StoredField;
 
-import com.stromberglabs.jopensurf.SURFInterestPoint;
-import com.stromberglabs.jopensurf.Surf;
-
 /**
- * User: mathias@juggle.at
- * Date: 29.09.2010
- * Time: 15:41:28
+ * ...
+ * Date: 23.09.2008
+ * Time: 12:05:08
+ *
+ * @author Mathias Lux, mathias@juggle.at
  */
-public class SurfDocumentBuilder extends AbstractDocumentBuilder {
+public class SiftDocumentBuilder extends AbstractDocumentBuilder {
+    private Logger logger = Logger.getLogger(getClass().getName());
+    private Extractor extractor;
 
+    public SiftDocumentBuilder() {
+        extractor = new Extractor();
+    }
 
     @Override
     public Field[] createDescriptorFields(BufferedImage image) {
         Field[] result = null;
-        Surf s = new Surf(image);
-        List<SURFInterestPoint> interestPoints = s.getFreeOrientedInterestPoints();
-        result = new Field[interestPoints.size()];
-        int count = 0;
-        for (Iterator<SURFInterestPoint> sipi = interestPoints.iterator(); sipi.hasNext(); ) {
-            SURFInterestPoint sip = sipi.next();
-            SurfFeature sf = new SurfFeature(sip);
-            result[count] = (new StoredField(DocumentBuilder.FIELD_NAME_SURF, sf.getByteArrayRepresentation()));
-            count++;
+        try {
+            // extract features from image:
+            List<Feature> features = extractor.computeSiftFeatures(image);
+            result = new Field[features.size()];
+            int count = 0;
+            // create new document:
+            for (Iterator<Feature> fit = features.iterator(); fit.hasNext(); ) {
+                Feature f = fit.next();
+                result[count] = new StoredField(DocumentBuilder.FIELD_NAME_SIFT, f.getByteArrayRepresentation());
+                count++;
+            }
+        } catch (IOException e) {
+            logger.severe(e.getMessage());
         }
         return result;
     }
 
     public Document createDocument(BufferedImage image, ImageInfo imageInfo) {
         Document doc = null;
-        Surf s = new Surf(image);
-        List<SURFInterestPoint> interestPoints = s.getFreeOrientedInterestPoints();
-        doc = new Document();
-        for (Iterator<SURFInterestPoint> sipi = interestPoints.iterator(); sipi.hasNext(); ) {
-            SURFInterestPoint sip = sipi.next();
-            SurfFeature sf = new SurfFeature(sip);
-            doc.add(new StoredField(DocumentBuilder.FIELD_NAME_SURF, sf.getByteArrayRepresentation()));
+        try {
+            // extract features from image:
+            List<Feature> features = extractor.computeSiftFeatures(image);
+            // create new document:
+            doc = new Document();
+            for (Iterator<Feature> fit = features.iterator(); fit.hasNext(); ) {
+                Feature f = fit.next();
+                // add each feature to the document:
+                doc.add(new StoredField(DocumentBuilder.FIELD_NAME_SIFT, f.getByteArrayRepresentation()));
+            }
+        } catch (IOException e) {
+            logger.severe(e.getMessage());
         }
-
+        
         addImageInfoFields(doc, imageInfo);
+        
         return doc;
     }
 }

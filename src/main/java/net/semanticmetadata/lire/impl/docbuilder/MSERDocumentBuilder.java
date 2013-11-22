@@ -38,7 +38,7 @@
  *
  * Updated: 21.04.13 09:01
  */
-package net.semanticmetadata.lire.impl;
+package net.semanticmetadata.lire.impl.docbuilder;
 
 import java.awt.image.BufferedImage;
 import java.util.Iterator;

@@ -43,8 +43,8 @@ package net.semanticmetadata.lire;
 
 import net.semanticmetadata.lire.imageanalysis.*;
 import net.semanticmetadata.lire.imageanalysis.joint.JointHistogram;
-import net.semanticmetadata.lire.impl.BitSamplingImageSearcher;
-import net.semanticmetadata.lire.impl.GenericFastImageSearcher;
+import net.semanticmetadata.lire.impl.searcher.BitSamplingImageSearcher;
+import net.semanticmetadata.lire.impl.searcher.GenericFastImageSearcher;
 
 /**
  * <h2>Searching in an Index</h2>

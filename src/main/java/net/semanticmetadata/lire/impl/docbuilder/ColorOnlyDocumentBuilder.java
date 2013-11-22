@@ -37,7 +37,7 @@
  *     http://www.semanticmetadata.net/lire, http://www.lire-project.net
  */
 
-package net.semanticmetadata.lire.impl;
+package net.semanticmetadata.lire.impl.docbuilder;
 
 import net.semanticmetadata.lire.DocumentBuilder;
 import net.semanticmetadata.lire.imageanalysis.ColorLayout;
@@ -58,9 +58,9 @@ import java.util.logging.Logger;
  * @author Mathias Lux, mathias@juggle.at
  * @deprecated no longer needed, will be deleted.
  */
-public class DocumentFactory {
+public class ColorOnlyDocumentBuilder {
     // create the logger for this factory:
-    static Logger logger = Logger.getLogger(DocumentFactory.class.getName());
+    static Logger logger = Logger.getLogger(ColorOnlyDocumentBuilder.class.getName());
 
     /**
      * Creates a document from a (non existent) one color image. Can be used for

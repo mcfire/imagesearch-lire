@@ -40,7 +40,7 @@
 package net.semanticmetadata.lire;
 
 import junit.framework.TestCase;
-import net.semanticmetadata.lire.impl.ChainedDocumentBuilder;
+import net.semanticmetadata.lire.impl.docbuilder.ChainedDocumentBuilder;
 import net.semanticmetadata.lire.utils.FileUtils;
 import net.semanticmetadata.lire.utils.LuceneUtils;
 import org.apache.lucene.document.Document;

@@ -43,8 +43,8 @@ package net.semanticmetadata.lire;
 
 import net.semanticmetadata.lire.imageanalysis.*;
 import net.semanticmetadata.lire.imageanalysis.joint.JointHistogram;
-import net.semanticmetadata.lire.impl.ChainedDocumentBuilder;
-import net.semanticmetadata.lire.impl.GenericDocumentBuilder;
+import net.semanticmetadata.lire.impl.docbuilder.ChainedDocumentBuilder;
+import net.semanticmetadata.lire.impl.docbuilder.GenericDocumentBuilder;
 
 /**
  * Use DocumentBuilderFactory to create a DocumentBuilder, which

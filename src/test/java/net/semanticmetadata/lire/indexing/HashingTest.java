@@ -47,7 +47,7 @@ import net.semanticmetadata.lire.ImageSearchHits;
 import net.semanticmetadata.lire.imageanalysis.CEDD;
 import net.semanticmetadata.lire.imageanalysis.LireFeature;
 import net.semanticmetadata.lire.imageanalysis.PHOG;
-import net.semanticmetadata.lire.impl.BitSamplingImageSearcher;
+import net.semanticmetadata.lire.impl.searcher.BitSamplingImageSearcher;
 import net.semanticmetadata.lire.indexing.hashing.BitSampling;
 import net.semanticmetadata.lire.utils.FileUtils;
 import org.apache.lucene.document.Document;

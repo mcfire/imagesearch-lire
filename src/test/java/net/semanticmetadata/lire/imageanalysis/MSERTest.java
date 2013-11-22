@@ -40,7 +40,8 @@
 package net.semanticmetadata.lire.imageanalysis;
 
 import junit.framework.TestCase;
-import net.semanticmetadata.lire.impl.MSERDocumentBuilder;
+import net.semanticmetadata.lire.impl.docbuilder.MSERDocumentBuilder;
+
 import org.apache.lucene.document.Document;
 
 import javax.imageio.ImageIO;

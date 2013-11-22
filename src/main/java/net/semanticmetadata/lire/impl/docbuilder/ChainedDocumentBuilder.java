@@ -36,79 +36,87 @@
  * (c) 2002-2013 by Mathias Lux (mathias@juggle.at)
  *  http://www.semanticmetadata.net/lire, http://www.lire-project.net
  *
- * Updated: 21.04.13 09:06
+ * Updated: 26.04.13 13:43
  */
-package net.semanticmetadata.lire.impl;
+
+package net.semanticmetadata.lire.impl.docbuilder;
 
 import java.awt.image.BufferedImage;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Iterator;
-import java.util.List;
-import java.util.logging.Logger;
+import java.io.InputStream;
+import java.util.LinkedList;
 
 import net.semanticmetadata.lire.AbstractDocumentBuilder;
 import net.semanticmetadata.lire.DocumentBuilder;
-import net.semanticmetadata.lire.imageanalysis.sift.Extractor;
-import net.semanticmetadata.lire.imageanalysis.sift.Feature;
 import net.semanticmetadata.lire.indexing.parallel.ImageInfo;
+import net.semanticmetadata.lire.indexing.parallel.WorkItem;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
-import org.apache.lucene.document.StoredField;
 
 /**
- * ...
- * Date: 23.09.2008
- * Time: 12:05:08
- *
- * @author Mathias Lux, mathias@juggle.at
+ * Chaining of DocumentBuilder. If you need several different feature, create a ChainedDocumentBuilder and add
+ * different DocumentBuilder instances with {@link ChainedDocumentBuilder#addBuilder(net.semanticmetadata.lire.DocumentBuilder)}
+ * @author Mathias Lux, mathias@juggle.at, 20.02.2007
  */
-public class SiftDocumentBuilder extends AbstractDocumentBuilder {
-    private Logger logger = Logger.getLogger(getClass().getName());
-    private Extractor extractor;
+public class ChainedDocumentBuilder extends AbstractDocumentBuilder {
+    private LinkedList<DocumentBuilder> builders;
+    private boolean docsCreated = false;
 
-    public SiftDocumentBuilder() {
-        extractor = new Extractor();
+    /**
+     * Creates a new, empty ChainedDocumentBuilder.
+     */
+    public ChainedDocumentBuilder() {
+        builders = new LinkedList<DocumentBuilder>();
+    }
+
+    /**
+     * Adds DocumentBuilder instances to the ChainedDocumentBuilder. Note that after Document instances have been
+     * created with {@link ChainedDocumentBuilder#createDocument(java.awt.image.BufferedImage, String)} no new
+     * DocumentBuilder instances can be added.
+     * @param builder the DocumentBuilder instance to add.
+     */
+    public void addBuilder(DocumentBuilder builder) {
+        if (docsCreated)
+            throw new UnsupportedOperationException("Cannot modify chained builder after documents have been created!");
+        builders.add(builder);
     }
 
     @Override
     public Field[] createDescriptorFields(BufferedImage image) {
-        Field[] result = null;
-        try {
-            // extract features from image:
-            List<Feature> features = extractor.computeSiftFeatures(image);
-            result = new Field[features.size()];
-            int count = 0;
-            // create new document:
-            for (Iterator<Feature> fit = features.iterator(); fit.hasNext(); ) {
-                Feature f = fit.next();
-                result[count] = new StoredField(DocumentBuilder.FIELD_NAME_SIFT, f.getByteArrayRepresentation());
-                count++;
+        docsCreated = true;
+        LinkedList<Field> resultList = new LinkedList<Field>();
+        if (builders.size() >= 1) {
+            for (DocumentBuilder builder : builders) {
+            	try {
+	                Field[] fields = builder.createDescriptorFields(image);
+	                for (int i = 0; i < fields.length; i++) {
+	                    resultList.add(fields[i]);
+	                }
+            	} catch (Exception e) {
+            		e.printStackTrace();
+            	}
             }
-        } catch (IOException e) {
-            logger.severe(e.getMessage());
         }
-        return result;
+        return resultList.toArray(new Field[resultList.size()]);
     }
 
     public Document createDocument(BufferedImage image, ImageInfo imageInfo) {
-        Document doc = null;
-        try {
-            // extract features from image:
-            List<Feature> features = extractor.computeSiftFeatures(image);
-            // create new document:
-            doc = new Document();
-            for (Iterator<Feature> fit = features.iterator(); fit.hasNext(); ) {
-                Feature f = fit.next();
-                // add each feature to the document:
-                doc.add(new StoredField(DocumentBuilder.FIELD_NAME_SIFT, f.getByteArrayRepresentation()));
+        docsCreated = true;
+        Document doc = new Document();
+
+        if (builders.size() >= 1) {
+            for (DocumentBuilder builder : builders) {
+                Field[] fields = builder.createDescriptorFields(image);
+                for (int i = 0; i < fields.length; i++) {
+                    Field field = fields[i];
+                    doc.add(field);
+                }
             }
-        } catch (IOException e) {
-            logger.severe(e.getMessage());
         }
         
         addImageInfoFields(doc, imageInfo);
-        
         return doc;
     }
 }

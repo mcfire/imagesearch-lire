@@ -39,7 +39,7 @@
  * Updated: 04.05.13 12:47
  */
 
-package net.semanticmetadata.lire.impl;
+package net.semanticmetadata.lire.impl.searcher;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -51,6 +51,8 @@ import net.semanticmetadata.lire.DocumentBuilder;
 import net.semanticmetadata.lire.ImageDuplicates;
 import net.semanticmetadata.lire.ImageSearchHits;
 import net.semanticmetadata.lire.imageanalysis.LireFeature;
+import net.semanticmetadata.lire.impl.SimpleImageSearchHits;
+import net.semanticmetadata.lire.impl.SimpleResult;
 import net.semanticmetadata.lire.indexing.hashing.LocalitySensitiveHashing;
 import net.semanticmetadata.lire.indexing.parallel.ImageInfo;
 
