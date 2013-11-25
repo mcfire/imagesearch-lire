@@ -41,10 +41,28 @@
 
 package net.semanticmetadata.lire;
 
-import net.semanticmetadata.lire.imageanalysis.*;
+import java.util.List;
+
+import net.semanticmetadata.lire.imageanalysis.AutoColorCorrelogram;
+import net.semanticmetadata.lire.imageanalysis.CEDD;
+import net.semanticmetadata.lire.imageanalysis.ColorLayout;
+import net.semanticmetadata.lire.imageanalysis.EdgeHistogram;
+import net.semanticmetadata.lire.imageanalysis.FCTH;
+import net.semanticmetadata.lire.imageanalysis.Gabor;
+import net.semanticmetadata.lire.imageanalysis.JCD;
+import net.semanticmetadata.lire.imageanalysis.JpegCoefficientHistogram;
+import net.semanticmetadata.lire.imageanalysis.LuminanceLayout;
+import net.semanticmetadata.lire.imageanalysis.OpponentHistogram;
+import net.semanticmetadata.lire.imageanalysis.PHOG;
+import net.semanticmetadata.lire.imageanalysis.ScalableColor;
+import net.semanticmetadata.lire.imageanalysis.SimpleColorHistogram;
+import net.semanticmetadata.lire.imageanalysis.Tamura;
 import net.semanticmetadata.lire.imageanalysis.joint.JointHistogram;
 import net.semanticmetadata.lire.impl.searcher.BitSamplingImageSearcher;
 import net.semanticmetadata.lire.impl.searcher.GenericFastImageSearcher;
+import net.semanticmetadata.lire.impl.searcher.KeyWordsImageSearcher;
+import net.semanticmetadata.lire.impl.searcher.LocationBasedImageSearcher;
+import net.semanticmetadata.lire.impl.searcher.MultipleVoterImageSearcher;
 
 /**
  * <h2>Searching in an Index</h2>
@@ -82,6 +100,19 @@ public class ImageSearcherFactory {
      * Default number of maximum hits.
      */
     public static int NUM_MAX_HITS = 100;
+
+    public static ImageSearcher createMultipleVoterImageSearcher(
+    							int maximumHits, List<ImageSearcher> searchers) {
+    	return new MultipleVoterImageSearcher(maximumHits, searchers);
+    }
+    
+    public static ImageSearcher createKeyWordsSearcher(int maximumHits) {
+        return new KeyWordsImageSearcher(maximumHits);
+    }
+    
+    public static ImageSearcher createLocationBasedSearcher(int maximumHits) {
+        return new LocationBasedImageSearcher(maximumHits);
+    }
 
     /**
      * Creates a new simple image searcher with the desired number of maximum hits.

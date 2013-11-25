@@ -41,6 +41,8 @@
 
 package net.semanticmetadata.lire.impl;
 
+import net.semanticmetadata.lire.DocumentBuilder;
+
 import org.apache.lucene.document.Document;
 
 /**
@@ -107,6 +109,9 @@ public class SimpleResult implements Comparable<SimpleResult> {
      * @return -1, 0, or 1
      */
     public int compareTo(SimpleResult o) {
+    	
+    	if (this.equals(o)) return 0;
+    	
         int compareValue = (int) Math.signum(distance - ((SimpleResult) o).distance);
         if (compareValue==0 && indexNumber != o.indexNumber) {
             return (int) Math.signum(indexNumber-o.indexNumber);
@@ -119,6 +124,11 @@ public class SimpleResult implements Comparable<SimpleResult> {
         // it's not the same if it's not the same class.
         if (! (obj instanceof SimpleResult)) return false;
         // it's the same if the document is the same, regardless of the distance.
-        else return (document.equals(((SimpleResult)obj).document) && indexNumber == ((SimpleResult)obj).indexNumber);
+        String id = document.get(DocumentBuilder.FIELD_NAME_IDENTIFIER);
+        String targetId = ((SimpleResult)obj).document.get(DocumentBuilder.FIELD_NAME_IDENTIFIER);
+        
+        if (id != null && id.equals(targetId)) return true;
+        
+        return (document.equals(((SimpleResult)obj).document) && indexNumber == ((SimpleResult)obj).indexNumber);
     }
 }

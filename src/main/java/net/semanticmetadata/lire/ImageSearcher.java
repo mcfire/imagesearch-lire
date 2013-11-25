@@ -153,4 +153,13 @@ public interface ImageSearcher {
      */
     public ImageSearchHits relevanceFeedback(ImageSearchHits originalSearch,
                                              Set<Document> positives, Set<Document> negatives);
+    
+    /**
+     * Get the result weight returned by this searcher. 
+     * The weight will effect results in multiple searcher case
+     * The default weight is 1f 
+     * @return
+     * the weight
+     */
+    public float getWeight();
 }

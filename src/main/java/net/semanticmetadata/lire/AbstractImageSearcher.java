@@ -62,6 +62,9 @@ import org.apache.lucene.index.IndexReader;
  * @author Mathias Lux, mathias@juggle.at
  */
 public abstract class AbstractImageSearcher implements ImageSearcher {
+	
+    private float weight = 1f;
+    
     /**
      * Searches for images similar to the given image. This simple implementation uses
      * {@link ImageSearcher#search(java.awt.image.BufferedImage, org.apache.lucene.index.IndexReader)},
@@ -84,4 +87,12 @@ public abstract class AbstractImageSearcher implements ImageSearcher {
     public ImageSearchHits relevanceFeedback(ImageSearchHits originalSearch, Set<Document> positives, Set<Document> negatives) {
         throw new UnsupportedOperationException("Not implemented yet for this kind of searcher!");
     }
+
+	public float getWeight() {
+		return weight;
+	}
+
+	public void setWeight(float weight) {
+		this.weight = weight;
+	}
 }
