@@ -53,12 +53,11 @@ import net.semanticmetadata.lire.indexing.parallel.ImageInfo;
 import net.semanticmetadata.lire.indexing.parallel.WorkItem;
 import net.semanticmetadata.lire.utils.LuceneUtils;
 
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
-import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TopDocs;
@@ -70,7 +69,7 @@ import org.apache.lucene.search.TopDocs;
 public class KeyWordsImageSearcher extends AbstractImageSearcher {
 	
     private int numMaxHits;
-    QueryParser qp;
+    MultiFieldQueryParser qp;
 
     public KeyWordsImageSearcher(int numMaxHits) {
     	this.numMaxHits = numMaxHits;
@@ -78,7 +77,7 @@ public class KeyWordsImageSearcher extends AbstractImageSearcher {
     						new String[]{DocumentBuilder.FIELD_NAME_TITLE, 
     									DocumentBuilder.FIELD_NAME_TAGS,
     									DocumentBuilder.FIELD_NAME_LOCATION}, 
-    						new StandardAnalyzer(LuceneUtils.LUCENE_VERSION));
+    						new WhitespaceAnalyzer(LuceneUtils.LUCENE_VERSION));
     }
 
     public ImageSearchHits search(BufferedImage image, IndexReader reader) throws IOException {
@@ -93,6 +92,9 @@ public class KeyWordsImageSearcher extends AbstractImageSearcher {
     }
     
     public ImageSearchHits search(BufferedImage image, ImageInfo imageInfo, IndexReader reader) throws IOException {
+    	
+    	if (imageInfo.getTitle() == null || imageInfo.getTitle().length() == 0) return null;
+    	
     	SimpleImageSearchHits sh = null;
         IndexSearcher isearcher = new IndexSearcher(reader);
         String queryString = imageInfo.getTitle();

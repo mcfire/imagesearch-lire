@@ -115,6 +115,7 @@ public class MultipleVoterImageSearcher extends AbstractImageSearcher {
         
         for (ImageSearcher searcher : searchers) {
         	ImageSearchHits result = searcher.search(image, imageInfo, reader);
+        	if (result == null || result.length() == 0) continue;
         	
         	for (int i = 0; i < result.length(); i++) {
         		Document doc = result.doc(i);
@@ -144,7 +145,7 @@ public class MultipleVoterImageSearcher extends AbstractImageSearcher {
         
         List<SimpleResult> resultDocs;
         if (sortedDocs.size() > 0) {
-        	resultDocs = sortedDocs.subList(0, maxHits);
+        	resultDocs = sortedDocs.subList(0, Math.min(maxHits, sortedDocs.size()));
         	maxWeight = resultDocs.get(resultDocs.size() - 1).getDistance();
         } else {
         	resultDocs = new ArrayList<SimpleResult>(0);

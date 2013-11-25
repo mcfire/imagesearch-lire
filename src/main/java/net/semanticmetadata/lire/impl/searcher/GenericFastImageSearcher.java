@@ -207,7 +207,10 @@ public class GenericFastImageSearcher extends AbstractImageSearcher {
     }
     
     public ImageSearchHits search(BufferedImage image, ImageInfo imageInfo, IndexReader reader) throws IOException {
-        logger.finer("Starting extraction.");
+        
+    	if (image == null) return null;
+    	
+    	logger.finer("Starting extraction.");
         LireFeature lireFeature = null;
         SimpleImageSearchHits searchHits = null;
         try {

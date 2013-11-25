@@ -42,15 +42,11 @@
 package net.semanticmetadata.lire.impl.docbuilder;
 
 import java.awt.image.BufferedImage;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.LinkedList;
 
 import net.semanticmetadata.lire.AbstractDocumentBuilder;
 import net.semanticmetadata.lire.DocumentBuilder;
 import net.semanticmetadata.lire.indexing.parallel.ImageInfo;
-import net.semanticmetadata.lire.indexing.parallel.WorkItem;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;

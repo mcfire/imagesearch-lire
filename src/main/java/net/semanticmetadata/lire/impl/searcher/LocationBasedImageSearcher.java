@@ -54,6 +54,7 @@ import net.semanticmetadata.lire.impl.SimpleResult;
 import net.semanticmetadata.lire.indexing.parallel.ImageInfo;
 import net.semanticmetadata.lire.indexing.parallel.WorkItem;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.MultiFields;
@@ -88,7 +89,10 @@ public class LocationBasedImageSearcher extends AbstractImageSearcher {
     }
     
     public ImageSearchHits search(BufferedImage image, ImageInfo imageInfo, IndexReader reader) throws IOException {
-        logger.finer("Starting extraction.");
+        
+    	if (StringUtils.isEmpty(imageInfo.getLng()) || StringUtils.isEmpty(imageInfo.getLat())) return null;
+    	
+    	logger.finer("Starting extraction.");
         SimpleImageSearchHits searchHits = null;
         
         float maxDistance = findSimilar(reader, imageInfo);
