@@ -162,12 +162,9 @@ public class LocationBasedImageSearcher extends AbstractImageSearcher {
         
         Double lngQuery = null, latQuery = null;
         
-        String lngQueryText = d.get(DocumentBuilder.FIELD_NAME_LNG);
-        String latQueryText = d.get(DocumentBuilder.FIELD_NAME_LAT);
-        
         try {
-        	lngQuery = Double.parseDouble(lngQueryText);
-        	latQuery = Double.parseDouble(latQueryText);
+        	lngQuery = Double.parseDouble(imageInfo.getLng());
+        	latQuery = Double.parseDouble(imageInfo.getLat());
         } catch (Exception e) {}
         
         if (lngQuery == null && latQuery == null) return 0;
