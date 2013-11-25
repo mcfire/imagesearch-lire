@@ -63,6 +63,8 @@ public class WorkItem implements ImageInfo {
     
     private byte[] buffer;
     
+    public WorkItem() {}
+    
     public WorkItem(String fileName, String title, String location,
 			String tags, byte[] buffer) {
 		super();
