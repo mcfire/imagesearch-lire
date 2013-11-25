@@ -102,6 +102,8 @@ public abstract class AbstractDocumentBuilder implements DocumentBuilder {
     }
     
     protected void addImageInfoFields(Document doc, ImageInfo imageInfo) {
+    	if (imageInfo == null) return;
+    	
     	doc.add(new StringField(DocumentBuilder.FIELD_NAME_IDENTIFIER, imageInfo.getTitle(), Field.Store.YES));
     	doc.add(new LongField(DocumentBuilder.FIELD_NAME_DBID, imageInfo.getId(), Field.Store.YES));
     	doc.add(new StringField(DocumentBuilder.FIELD_NAME_TITLE, imageInfo.getTitle(), Field.Store.YES));
