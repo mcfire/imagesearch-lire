@@ -46,6 +46,8 @@ import net.semanticmetadata.lire.ImageSearchHits;
 import net.semanticmetadata.lire.filter.RerankFilter;
 import net.semanticmetadata.lire.imageanalysis.FCTH;
 import net.semanticmetadata.lire.utils.FileUtils;
+import net.semanticmetadata.lire.utils.LuceneUtils;
+
 import org.apache.lucene.analysis.core.SimpleAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -91,7 +93,7 @@ public class TestRerankTextSearch extends TestCase {
     private File testIndex = new File("textindextest");
 
     public void testIndexing() throws IOException, ParserConfigurationException, SAXException {
-        IndexWriterConfig iwConf = new IndexWriterConfig(Version.LUCENE_42, new SimpleAnalyzer(Version.LUCENE_42));
+        IndexWriterConfig iwConf = new IndexWriterConfig(LuceneUtils.LUCENE_VERSION, new SimpleAnalyzer(LuceneUtils.LUCENE_VERSION));
         IndexWriter iw = new IndexWriter(FSDirectory.open(testIndex), iwConf);
         // if you want to append the index to a pre-existing one use the next line.
         // iwConf.setOpenMode(IndexWriterConfig.OpenMode.APPEND);
@@ -127,7 +129,7 @@ public class TestRerankTextSearch extends TestCase {
         IndexSearcher searcher = new IndexSearcher(reader);
         // The QueryParser takes a String and creates a query out of it. Make sure you use the same field
         // as for indexing, in this case "tags"
-        QueryParser q = new QueryParser(Version.LUCENE_42, "tags", new SimpleAnalyzer(Version.LUCENE_42));
+        QueryParser q = new QueryParser(LuceneUtils.LUCENE_VERSION, "tags", new SimpleAnalyzer(LuceneUtils.LUCENE_VERSION));
         // let's just take the tags of the first document in the index:
         Query query = q.parse(reader.document(1).getValues("tags")[0]);
         // now that's the actual search:

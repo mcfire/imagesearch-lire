@@ -74,6 +74,11 @@
     </prerequisites>
 
 	<dependencies>
+        <dependency>
+        	<groupId>org.wltea</groupId>
+			<artifactId>ikanalyzer</artifactId>
+			<version>3.8</version>
+        </dependency>
 		<dependency>
 			<groupId>commons-lang</groupId>
 			<artifactId>commons-lang</artifactId>

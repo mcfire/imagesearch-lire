@@ -85,7 +85,7 @@ public class VisualWordsTest extends TestCase {
 
     public void testIndexingAndSearchSurf() throws IOException {
         // Creating an Lucene IndexWriter
-        IndexWriterConfig conf = new IndexWriterConfig(Version.LUCENE_40, new WhitespaceAnalyzer(Version.LUCENE_40));
+        IndexWriterConfig conf = new IndexWriterConfig(LuceneUtils.LUCENE_VERSION, new WhitespaceAnalyzer(LuceneUtils.LUCENE_VERSION));
         IndexWriter iw = new IndexWriter(FSDirectory.open(indexPath), conf);
         long ms = System.currentTimeMillis();
         int count = 0;
@@ -130,7 +130,7 @@ public class VisualWordsTest extends TestCase {
     // -------------< SIFT >--------------------
     public void testIndexingAndSearchSift() throws IOException {
         // Creating an Lucene IndexWriter
-        IndexWriterConfig conf = new IndexWriterConfig(Version.LUCENE_40, new WhitespaceAnalyzer(Version.LUCENE_40));
+        IndexWriterConfig conf = new IndexWriterConfig(LuceneUtils.LUCENE_VERSION, new WhitespaceAnalyzer(LuceneUtils.LUCENE_VERSION));
         IndexWriter iw = new IndexWriter(FSDirectory.open(indexPath), conf);
         long ms = System.currentTimeMillis();
         int count = 0;

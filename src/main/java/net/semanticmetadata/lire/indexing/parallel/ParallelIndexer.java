@@ -57,11 +57,11 @@ import net.semanticmetadata.lire.impl.docbuilder.ChainedDocumentBuilder;
 import net.semanticmetadata.lire.indexing.LireCustomCodec;
 import net.semanticmetadata.lire.utils.LuceneUtils;
 
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.FSDirectory;
+import org.wltea.analyzer.lucene.IKAnalyzer;
 
 /**
  * This class allows for creating indexes in a parallel manner. The class
@@ -120,7 +120,7 @@ public class ParallelIndexer implements Runnable {
     }
 
     public void run() {
-        IndexWriterConfig config = new IndexWriterConfig(LuceneUtils.LUCENE_VERSION, new StandardAnalyzer(LuceneUtils.LUCENE_VERSION));
+        IndexWriterConfig config = new IndexWriterConfig(LuceneUtils.LUCENE_VERSION, new IKAnalyzer());
         config.setOpenMode(openMode);
         config.setCodec(new LireCustomCodec());
         try {

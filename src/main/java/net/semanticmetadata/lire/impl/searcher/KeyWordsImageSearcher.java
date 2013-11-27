@@ -53,7 +53,6 @@ import net.semanticmetadata.lire.indexing.parallel.ImageInfo;
 import net.semanticmetadata.lire.indexing.parallel.WorkItem;
 import net.semanticmetadata.lire.utils.LuceneUtils;
 
-import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
@@ -61,6 +60,7 @@ import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TopDocs;
+import org.wltea.analyzer.lucene.IKAnalyzer;
 
 /**
  * @author mc
@@ -77,7 +77,7 @@ public class KeyWordsImageSearcher extends AbstractImageSearcher {
     						new String[]{DocumentBuilder.FIELD_NAME_TITLE, 
     									DocumentBuilder.FIELD_NAME_TAGS,
     									DocumentBuilder.FIELD_NAME_LOCATION}, 
-    						new WhitespaceAnalyzer(LuceneUtils.LUCENE_VERSION));
+    									new IKAnalyzer());
     }
 
     public ImageSearchHits search(BufferedImage image, IndexReader reader) throws IOException {
