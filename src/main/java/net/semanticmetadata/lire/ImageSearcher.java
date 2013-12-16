@@ -157,7 +157,15 @@ public interface ImageSearcher {
     /**
      * Get the result weight returned by this searcher. 
      * The weight will effect results in multiple searcher case
-     * The default weight is 1f 
+     * The default weight is 1f, range from 0 to positive infinity
+     * @param weight
+     */
+    public void setWeight(float weight);
+    
+    /**
+     * Get the result weight returned by this searcher. 
+     * The weight will effect results in multiple searcher case
+     * The default weight is 1f, range from 0 to positive infinity
      * @return
      * the weight
      */
