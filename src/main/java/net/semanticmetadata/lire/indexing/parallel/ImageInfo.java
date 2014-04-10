@@ -43,7 +43,7 @@ package net.semanticmetadata.lire.indexing.parallel;
 
 public interface ImageInfo {
 	
-	public Long getId();
+	public String getId();
     
     public String getFileName();
 

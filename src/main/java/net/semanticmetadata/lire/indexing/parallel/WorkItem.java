@@ -50,7 +50,7 @@ package net.semanticmetadata.lire.indexing.parallel;
 
 public class WorkItem implements ImageInfo {
 
-	private Long id;
+	private String id;
 	
     private String fileName;
     
@@ -126,11 +126,11 @@ public class WorkItem implements ImageInfo {
 		this.tags = tags;
 	}
 
-	public Long getId() {
+	public String getId() {
 		return id;
 	}
 
-	public void setId(Long id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 
