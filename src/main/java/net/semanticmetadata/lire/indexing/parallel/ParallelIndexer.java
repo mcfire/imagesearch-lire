@@ -54,6 +54,7 @@ import javax.imageio.ImageIO;
 
 import net.semanticmetadata.lire.DocumentBuilderFactory;
 import net.semanticmetadata.lire.impl.docbuilder.ChainedDocumentBuilder;
+import net.semanticmetadata.lire.impl.docbuilder.TextDocumentBuilder;
 import net.semanticmetadata.lire.indexing.LireCustomCodec;
 import net.semanticmetadata.lire.utils.LuceneUtils;
 
@@ -104,7 +105,7 @@ public class ParallelIndexer implements Runnable {
      *
      * @param builder
      */
-    public void addBuilders(ChainedDocumentBuilder builder) {
+    public void addBuilders(TextDocumentBuilder builder) {
         builder.addBuilder(DocumentBuilderFactory.getCEDDDocumentBuilder());
         builder.addBuilder(DocumentBuilderFactory.getFCTHDocumentBuilder());
         builder.addBuilder(DocumentBuilderFactory.getJCDDocumentBuilder());
@@ -238,7 +239,7 @@ public class ParallelIndexer implements Runnable {
      */
     class Consumer implements Runnable {
         WorkItem tmp = null;
-        ChainedDocumentBuilder builder = new ChainedDocumentBuilder();
+        TextDocumentBuilder builder = new TextDocumentBuilder();
         int count = 0;
         boolean locallyEnded = false;
 

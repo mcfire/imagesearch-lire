@@ -51,6 +51,7 @@ import net.semanticmetadata.lire.DocumentBuilder;
 import net.semanticmetadata.lire.imageanalysis.sift.Extractor;
 import net.semanticmetadata.lire.imageanalysis.sift.Feature;
 import net.semanticmetadata.lire.indexing.parallel.ImageInfo;
+import net.semanticmetadata.lire.utils.DocumentUtils;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -107,7 +108,7 @@ public class SiftDocumentBuilder extends AbstractDocumentBuilder {
             logger.severe(e.getMessage());
         }
         
-        addImageInfoFields(doc, imageInfo);
+        DocumentUtils.appendImageInfoFields(doc, imageInfo);
         
         return doc;
     }

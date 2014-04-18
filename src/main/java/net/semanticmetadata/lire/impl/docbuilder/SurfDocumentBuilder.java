@@ -49,6 +49,7 @@ import net.semanticmetadata.lire.AbstractDocumentBuilder;
 import net.semanticmetadata.lire.DocumentBuilder;
 import net.semanticmetadata.lire.imageanalysis.SurfFeature;
 import net.semanticmetadata.lire.indexing.parallel.ImageInfo;
+import net.semanticmetadata.lire.utils.DocumentUtils;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -92,7 +93,7 @@ public class SurfDocumentBuilder extends AbstractDocumentBuilder {
             doc.add(new StoredField(DocumentBuilder.FIELD_NAME_SURF, sf.getByteArrayRepresentation()));
         }
 
-        addImageInfoFields(doc, imageInfo);
+        DocumentUtils.appendImageInfoFields(doc, imageInfo);
         return doc;
     }
 }

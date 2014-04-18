@@ -49,6 +49,7 @@ import javax.imageio.ImageIO;
 
 import net.semanticmetadata.lire.indexing.parallel.ImageInfo;
 import net.semanticmetadata.lire.indexing.parallel.WorkItem;
+import net.semanticmetadata.lire.utils.DocumentUtils;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -86,7 +87,7 @@ public abstract class AbstractDocumentBuilder implements DocumentBuilder {
 			throw new RuntimeException(e);
 		}
         Document doc = createDocument(bufferedImage, imageInfo);
-        this.addImageInfoFields(doc, imageInfo);
+        DocumentUtils.appendImageInfoFields(doc, imageInfo);
         return doc;
     }
     
@@ -100,17 +101,5 @@ public abstract class AbstractDocumentBuilder implements DocumentBuilder {
     	WorkItem imageInfo = new WorkItem(imageName, null, null, null, null);
     	
     	return this.createDocument(image, imageInfo);
-    }
-    
-    protected void addImageInfoFields(Document doc, ImageInfo imageInfo) {
-    	if (imageInfo == null) return;
-    	
-    	doc.add(new StringField(DocumentBuilder.FIELD_NAME_IDENTIFIER, imageInfo.getTitle(), Field.Store.YES));
-    	doc.add(new TextField(DocumentBuilder.FIELD_NAME_DBID, imageInfo.getId(), Field.Store.YES));
-    	doc.add(new TextField(DocumentBuilder.FIELD_NAME_TITLE, imageInfo.getTitle(), Field.Store.YES));
-    	doc.add(new TextField(DocumentBuilder.FIELD_NAME_TAGS, imageInfo.getTags(), Field.Store.YES));
-    	doc.add(new TextField(DocumentBuilder.FIELD_NAME_LOCATION, imageInfo.getLocation(), Field.Store.YES));
-    	doc.add(new StringField(DocumentBuilder.FIELD_NAME_LNG, imageInfo.getLng(), Field.Store.YES));
-    	doc.add(new StringField(DocumentBuilder.FIELD_NAME_LAT, imageInfo.getLat(), Field.Store.YES));
     }
 }
