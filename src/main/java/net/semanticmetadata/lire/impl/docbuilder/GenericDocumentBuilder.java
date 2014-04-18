@@ -68,6 +68,7 @@ import net.semanticmetadata.lire.imageanalysis.joint.JointHistogram;
 import net.semanticmetadata.lire.indexing.hashing.BitSampling;
 import net.semanticmetadata.lire.indexing.hashing.LocalitySensitiveHashing;
 import net.semanticmetadata.lire.indexing.parallel.ImageInfo;
+import net.semanticmetadata.lire.utils.DocumentUtils;
 import net.semanticmetadata.lire.utils.ImageUtils;
 import net.semanticmetadata.lire.utils.SerializationUtils;
 
@@ -302,7 +303,7 @@ public class GenericDocumentBuilder extends AbstractDocumentBuilder {
             doc.add(fields[i]);
         }
         
-        addImageInfoFields(doc, imageInfo);
+        DocumentUtils.appendImageInfoFields(doc, imageInfo);
 
         return doc;
     }

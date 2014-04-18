@@ -49,6 +49,7 @@ import net.semanticmetadata.lire.DocumentBuilder;
 import net.semanticmetadata.lire.imageanalysis.mser.MSER;
 import net.semanticmetadata.lire.imageanalysis.mser.MSERFeature;
 import net.semanticmetadata.lire.indexing.parallel.ImageInfo;
+import net.semanticmetadata.lire.utils.DocumentUtils;
 import net.semanticmetadata.lire.utils.ImageUtils;
 
 import org.apache.lucene.document.Document;
@@ -114,7 +115,7 @@ public class MSERDocumentBuilder extends AbstractDocumentBuilder {
             e.printStackTrace();
         }
         
-        addImageInfoFields(doc, imageInfo);
+        DocumentUtils.appendImageInfoFields(doc, imageInfo);
         
         return doc;
     }
