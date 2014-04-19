@@ -47,3 +47,4 @@ results-*/*
 textindextest/*
 wang-index-*/*
 /target
+/test-tmp.dat
