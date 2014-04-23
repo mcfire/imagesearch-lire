@@ -42,7 +42,7 @@ package net.semanticmetadata.lire.imageanalysis;
 
 
 import net.semanticmetadata.lire.DocumentBuilder;
-import net.semanticmetadata.lire.imageanalysis.mpeg7.EdgeHistogramImplementation;
+import net.semanticmetadata.lire.imageanalysis.mpeg7.EdgeHistogramImpl;
 import net.semanticmetadata.lire.utils.ConversionUtils;
 
 /**
@@ -52,7 +52,7 @@ import net.semanticmetadata.lire.utils.ConversionUtils;
  *
  * @author Mathias Lux, mathias@juggle.at
  */
-public class EdgeHistogram extends EdgeHistogramImplementation implements LireFeature {
+public class EdgeHistogram extends EdgeHistogramImpl implements LireFeature {
     private int tmp;
 
 

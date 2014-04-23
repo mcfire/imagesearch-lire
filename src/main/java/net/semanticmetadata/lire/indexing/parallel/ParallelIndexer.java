@@ -48,17 +48,23 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Stack;
 
 import javax.imageio.ImageIO;
 
+import net.semanticmetadata.lire.DocumentBuilder;
 import net.semanticmetadata.lire.DocumentBuilderFactory;
 import net.semanticmetadata.lire.impl.docbuilder.ChainedDocumentBuilder;
 import net.semanticmetadata.lire.impl.docbuilder.TextDocumentBuilder;
 import net.semanticmetadata.lire.indexing.LireCustomCodec;
+import net.semanticmetadata.lire.utils.DocumentUtils;
 import net.semanticmetadata.lire.utils.LuceneUtils;
 
 import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
+import org.apache.lucene.document.StringField;
+import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.FSDirectory;
@@ -87,6 +93,40 @@ public class ParallelIndexer implements Runnable {
     private int monitoringInterval = 30;
     
     private String imageDataPath;
+    
+    /**
+     * 提取创建文档索引的核心代码，用于在论文中解释
+     * @param imageInfos
+     * 将要被建立索引的图像信息列表
+     * @throws IOException
+     */
+    public void indexImageTextFeature(List<ImageInfo> imageInfos) throws IOException {
+    	//创建Lucene索引配置，使用IKAnalyzer为中文分词器
+        IndexWriterConfig config = new IndexWriterConfig(LuceneUtils.LUCENE_VERSION, new IKAnalyzer());
+        //设置配置中的索引打开模式为创建或追加
+        config.setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
+
+        //使用Lucene索引配置和指定的索引位置，创建索引器。
+        IndexWriter writer = new IndexWriter(FSDirectory.open(new File(indexPath)), config);
+        
+        //对于每一个图像信息，将其文字描述和地理位置信息建立索引
+        for (ImageInfo imageInfo : imageInfos) {
+	        Document doc = new Document();
+	        //将图像文件的标题作为文档ID
+	    	doc.add(new StringField(DocumentBuilder.FIELD_NAME_IDENTIFIER, imageInfo.getTitle(), Field.Store.YES));
+	    	//为文档标题建立索引，TextField类型的文本将会分词后存储
+	    	doc.add(new TextField(DocumentBuilder.FIELD_NAME_TITLE, imageInfo.getTitle(), Field.Store.YES));
+	    	//保存图像信息数据库中的ID
+	    	doc.add(new TextField(DocumentBuilder.FIELD_NAME_DBID, imageInfo.getId(), Field.Store.YES));
+	    	//保存图像内容中事物的地理位置信息
+	    	doc.add(new StringField(DocumentBuilder.FIELD_NAME_LNG, imageInfo.getLng(), Field.Store.YES));
+	    	doc.add(new StringField(DocumentBuilder.FIELD_NAME_LAT, imageInfo.getLat(), Field.Store.YES));
+	    	//写入Lucene索引
+	    	writer.addDocument(doc);
+        }
+   	   	//关闭索引器
+    	writer.close();
+    }
 
     /**
      * @param numberOfThreads

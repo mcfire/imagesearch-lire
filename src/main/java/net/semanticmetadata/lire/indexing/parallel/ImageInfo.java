@@ -41,21 +41,36 @@
 
 package net.semanticmetadata.lire.indexing.parallel;
 
+/**
+ * 图像信息对象
+ */
 public interface ImageInfo {
 	
+	/**
+	 * 图像在数据库中的ID
+	 * @return
+	 */
 	public String getId();
+
+	/**
+	 * 图像标题
+	 * @return
+	 */
+	public String getTitle();
+    
+    /**
+     * 图像中事物的地理位置
+     * @return
+     */
+    public String getLng();
+    
+    public String getLat();
     
     public String getFileName();
-
-	public String getTitle();
 
 	public String getLocation();
 
 	public String getTags();
     
     public byte[] getBuffer();
-    
-    public String getLng();
-    
-    public String getLat();
 }

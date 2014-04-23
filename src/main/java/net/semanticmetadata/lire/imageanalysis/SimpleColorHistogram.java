@@ -197,7 +197,7 @@ public class SimpleColorHistogram implements LireFeature {
         WritableRaster raster = image.getRaster();
         for (int x = 0; x < image.getWidth(); x++) {
             for (int y = 0; y < image.getHeight(); y++) {
-                raster.getPixel(x, y, pixel);
+                raster.getPixel(x, y, pixel);	//获取第i,j个像素点，存放于pixel中，pixel[0]=R，pixel[1]=G，pixel[2]=B。
                 if (histogramType == HistogramType.HSV) {
                     rgb2hsv(pixel[0], pixel[1], pixel[2], pixel);
                     histogram[quant(pixel)]++;
@@ -206,7 +206,7 @@ public class SimpleColorHistogram implements LireFeature {
                 } else if (histogramType == HistogramType.HMMD) {
                     histogram[quantHmmd(rgb2hmmd(pixel[0], pixel[1], pixel[2]), DEFAULT_NUMBER_OF_BINS)]++;
                 } else // RGB 
-                    histogram[quant(pixel)]++;
+                    histogram[quant(pixel)]++; //将直方图对应特征点数值递增
             }
         }
         normalize(histogram, image.getWidth() * image.getHeight());
@@ -228,16 +228,28 @@ public class SimpleColorHistogram implements LireFeature {
         return ConversionUtils.toDouble(histogram);
     }
 
+    /**
+     * 对特征值进行归一化处理
+     * @param histogram
+     * @param numPixels
+     */
     private void normalize(int[] histogram, int numPixels) {
+    	//查找最大的特征值
         int max = 0;
         for (int i = 0; i < histogram.length; i++) {
             max = Math.max(histogram[i], max);
         }
+        //对每个特征值进行线性归一化
         for (int i = 0; i < histogram.length; i++) {
             histogram[i] = (histogram[i] * 255) / max;
         }
     }
 
+    /**
+     * 计算像素点对应的特征值
+     * @param pixel
+     * @return
+     */
     private int quant(int[] pixel) {
         if (histogramType == HistogramType.HSV) {
             int qH = (int) Math.floor(pixel[0] / 11.25);    // more granularity in color
@@ -264,6 +276,8 @@ public class SimpleColorHistogram implements LireFeature {
             }
             // and for 64 bins ...
             else {
+            	//对于RGB图像的每个像素点，使每个像素点有64个特征值取值。
+            	//此处为每个RGB分量提供2bit数据量，并将三个分量连接为一个数值
                 int pos = (int) Math.round((double) pixel[2] / 85d) +
                         (int) Math.round((double) pixel[1] / 85d) * 4 +
                         (int) Math.round((double) pixel[0] / 85d) * 4 * 4;
