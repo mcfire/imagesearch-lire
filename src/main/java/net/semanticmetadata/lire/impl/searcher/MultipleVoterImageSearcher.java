@@ -1,43 +1,3 @@
-/*
- * This file is part of the LIRE project: http://www.semanticmetadata.net/lire
- * LIRE is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * LIRE is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with LIRE; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
- * We kindly ask you to refer the any or one of the following publications in
- * any publication mentioning or employing Lire:
- *
- * Lux Mathias, Savvas A. Chatzichristofis. Lire: Lucene Image Retrieval –
- * An Extensible Java CBIR Library. In proceedings of the 16th ACM International
- * Conference on Multimedia, pp. 1085-1088, Vancouver, Canada, 2008
- * URL: http://doi.acm.org/10.1145/1459359.1459577
- *
- * Lux Mathias. Content Based Image Retrieval with LIRE. In proceedings of the
- * 19th ACM International Conference on Multimedia, pp. 735-738, Scottsdale,
- * Arizona, USA, 2011
- * URL: http://dl.acm.org/citation.cfm?id=2072432
- *
- * Mathias Lux, Oge Marques. Visual Information Retrieval using Java and LIRE
- * Morgan & Claypool, 2013
- * URL: http://www.morganclaypool.com/doi/abs/10.2200/S00468ED1V01Y201301ICR025
- *
- * Copyright statement:
- * ====================
- * (c) 2002-2013 by Mathias Lux (mathias@juggle.at)
- *  http://www.semanticmetadata.net/lire, http://www.lire-project.net
- *
- * Updated: 11.07.13 10:51
- */
 package net.semanticmetadata.lire.impl.searcher;
 
 import java.awt.image.BufferedImage;
@@ -81,18 +41,6 @@ public class MultipleVoterImageSearcher extends AbstractImageSearcher {
         
         docs = new TreeMap<String, SimpleResult>();
     }
-    
-    /**
-     * zero based position
-     * @param position
-     * @return
-     */
-    protected float getPositionWeight(int position) {
-    	if (position < 0) {
-    		return 0;
-    	}
-    	return 3 / (position + 1);
-    }
 
     public ImageSearchHits search(Document doc, IndexReader reader) throws IOException {
     	WorkItem imageInfo = new WorkItem(null, doc.get(DocumentBuilder.FIELD_NAME_TITLE), 
@@ -113,28 +61,36 @@ public class MultipleVoterImageSearcher extends AbstractImageSearcher {
         float maxWeight = 0;
         SimpleImageSearchHits searchHits = null;
         
+        //遍历自身包含的每个检索器
         for (ImageSearcher searcher : searchers) {
+        	//调用检索器进行检索
         	ImageSearchHits result = searcher.search(image, imageInfo, reader);
         	if (result == null || result.length() == 0) continue;
         	
+        	//对检索到的文档进行处理
         	for (int i = 0; i < result.length(); i++) {
         		Document doc = result.doc(i);
+        		//读取文档ID
         		String id = doc.get(DocumentBuilder.FIELD_NAME_IDENTIFIER);
         		SimpleResult record = new SimpleResult(1, doc, i);
         		
+        		//如果当前结果列表中已包含文档，则返回文档，否则将当前文档加入结果列表
         		if (docs.containsKey(id)) {
         			record = docs.get(id);
         		} else {
         			docs.put(id, record);
         		}
     			
+        		//根据文档顺序和检索器权重，计算文档权重
     			float weight = record.getDistance();
     			weight = weight + (this.getPositionWeight(i) * searcher.getWeight());
     			
+    			//将文档的权重进行更新
     			record.setDistance(weight);
         	}
         }
         
+        //根据更新后的文档权重，对文档进行排序
         List<SimpleResult> sortedDocs = new ArrayList<SimpleResult>(docs.values());
         Collections.sort(sortedDocs, new Comparator<SimpleResult> () {
 			@Override
@@ -143,6 +99,7 @@ public class MultipleVoterImageSearcher extends AbstractImageSearcher {
 			}
         });
         
+        //截取前N文档作为综合检索结果
         List<SimpleResult> resultDocs;
         if (sortedDocs.size() > 0) {
         	resultDocs = sortedDocs.subList(0, Math.min(maxHits, sortedDocs.size()));
@@ -151,47 +108,21 @@ public class MultipleVoterImageSearcher extends AbstractImageSearcher {
         	resultDocs = new ArrayList<SimpleResult>(0);
         }
         
+        //构建并返回检索结果
         searchHits = new SimpleImageSearchHits(resultDocs, maxWeight);
         return searchHits;
     }
-
+    
     /**
-     * @param reader
-     * @param lireFeature
-     * @return the maximum distance found for normalizing.
-     * @throws java.io.IOException
+     * zero based position
+     * @param position
+     * @return
      */
-    protected void findSimilar(ImageInfo imageInfo) throws IOException {
-        
-    }
-
-    protected float getDistance(Document d, ImageInfo imageInfo) {
-
-        Double lng = null, lat = null;
-        
-        String lngText = d.get(DocumentBuilder.FIELD_NAME_LNG);
-        String latText = d.get(DocumentBuilder.FIELD_NAME_LAT);
-        
-        try {
-        	lng = Double.parseDouble(lngText);
-        	lat = Double.parseDouble(latText);
-        } catch (Exception e) {}
-        
-        if (lng == null && lat == null) return 0;
-        
-        Double lngQuery = null, latQuery = null;
-        
-        String lngQueryText = d.get(DocumentBuilder.FIELD_NAME_LNG);
-        String latQueryText = d.get(DocumentBuilder.FIELD_NAME_LAT);
-        
-        try {
-        	lngQuery = Double.parseDouble(lngQueryText);
-        	latQuery = Double.parseDouble(latQueryText);
-        } catch (Exception e) {}
-        
-        if (lngQuery == null && latQuery == null) return 0;
-        
-        return (float)Math.sqrt((Math.pow(lngQuery - lng, 2d) + Math.pow(latQuery - lat, 2d)));
+    protected float getPositionWeight(int position) {
+    	if (position < 0) {
+    		return 0;
+    	}
+    	return 3 / (position + 1);
     }
 
     public ImageDuplicates findDuplicates(IndexReader reader) throws IOException {

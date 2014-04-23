@@ -67,12 +67,105 @@ import org.apache.lucene.util.Bits;
 public class LocationBasedImageSearcher extends AbstractImageSearcher {
     protected Logger logger = Logger.getLogger(getClass().getName());
 
+    //最大检索结果数量
     private int maxHits = 10;
+    //检索结果列表
     protected TreeSet<SimpleResult> docs;
 
     public LocationBasedImageSearcher(int maxHits) {
         this.maxHits = maxHits;
         docs = new TreeSet<SimpleResult>();
+    }
+    
+    public ImageSearchHits search(BufferedImage image, ImageInfo imageInfo, IndexReader reader) throws IOException {
+        
+    	if (StringUtils.isEmpty(imageInfo.getLng()) || StringUtils.isEmpty(imageInfo.getLat())) return null;
+    	
+    	//查找距离最近的文档，并返回最近文档的距离值
+        float maxDistance = findSimilar(reader, imageInfo);
+        //构建检索结果并返回
+        SimpleImageSearchHits searchHits = new SimpleImageSearchHits(this.docs, maxDistance);
+        return searchHits;
+    }
+
+    /**
+     * @param reader
+     * @param lireFeature
+     * @return the maximum distance found for normalizing.
+     * @throws java.io.IOException
+     */
+    protected float findSimilar(IndexReader reader, ImageInfo imageInfo) throws IOException {
+        float maxDistance = -1f, allMaxDistance = -1f;
+        float tmpDistance = 0f;
+
+        docs.clear();
+        //找出当前可用的文档列表，有些文档可能已经被删除
+        Bits liveDocs = MultiFields.getLiveDocs(reader);
+
+        int docs = reader.numDocs();
+        Document d = null;
+        for (int i = 0; i < docs; i++) {
+            if (reader.hasDeletions() && !liveDocs.get(i)) continue; //如果文档已经被删除，则忽略此文档
+
+            d = reader.document(i);//读取文档
+            tmpDistance = getDistance(d, imageInfo);//计算文档与检索对象之间的距离
+
+            //根据当前距离设置全局最大距离
+            if (allMaxDistance < tmpDistance) {
+                allMaxDistance = tmpDistance;
+            }
+            //当前是第一个文档时设置最大距离
+            if (maxDistance < 0) {
+                maxDistance = tmpDistance;
+            }
+            //当结果数量没有达到指定数量时，向结果中添加当前文档
+            if (this.docs.size() < maxHits) {
+                this.docs.add(new SimpleResult(tmpDistance, d, i));
+                if (tmpDistance > maxDistance) maxDistance = tmpDistance;
+            //当结果数量大于指定数量，并且当前距离比结果中最大距离更近时
+            } else if (tmpDistance < maxDistance) {
+            	//将结果中最距离最远的文档替换为当前文档
+                this.docs.remove(this.docs.last());
+                this.docs.add(new SimpleResult(tmpDistance, d, i));
+                //更新最大距离
+                maxDistance = this.docs.last().getDistance();
+            }
+        }
+        //将最大距离返回
+        return maxDistance;
+    }
+
+    //计算文档和待检索图像之间的地理位置距离
+    protected float getDistance(Document doc, ImageInfo imageInfo) {
+
+        Double lng = null, lat = null;
+        //从文档中提取地理位置信息
+        String lngText = doc.get(DocumentBuilder.FIELD_NAME_LNG);
+        String latText = doc.get(DocumentBuilder.FIELD_NAME_LAT);
+        
+        //将文档中的地理位置信息转换为经纬度，浮点型数值
+        try {
+        	lng = Double.parseDouble(lngText);
+        	lat = Double.parseDouble(latText);
+        } catch (Exception e) {}
+        
+        if (lng == null && lat == null) return 0;
+        
+      //将待检索图像中的地理位置信息转换为经纬度，浮点型数值
+        Double lngQuery = null, latQuery = null;
+        try {
+        	lngQuery = Double.parseDouble(imageInfo.getLng());
+        	latQuery = Double.parseDouble(imageInfo.getLat());
+        } catch (Exception e) {}
+        
+        if (lngQuery == null && latQuery == null) return 0;
+        
+        //计算并返回两点之间的距离
+        return (float)Math.sqrt((Math.pow(lngQuery - lng, 2d) + Math.pow(latQuery - lat, 2d)));
+    }
+
+    public ImageDuplicates findDuplicates(IndexReader reader) throws IOException {
+    	throw new UnsupportedOperationException();
     }
 
     public ImageSearchHits search(Document doc, IndexReader reader) throws IOException {
@@ -86,98 +179,6 @@ public class LocationBasedImageSearcher extends AbstractImageSearcher {
 
     public ImageSearchHits search(BufferedImage image, IndexReader reader) throws IOException {
     	return this.search(image, null, reader);
-    }
-    
-    public ImageSearchHits search(BufferedImage image, ImageInfo imageInfo, IndexReader reader) throws IOException {
-        
-    	if (StringUtils.isEmpty(imageInfo.getLng()) || StringUtils.isEmpty(imageInfo.getLat())) return null;
-    	
-    	logger.finer("Starting extraction.");
-        SimpleImageSearchHits searchHits = null;
-        
-        float maxDistance = findSimilar(reader, imageInfo);
-        searchHits = new SimpleImageSearchHits(this.docs, maxDistance);
-        return searchHits;
-    }
-
-    /**
-     * @param reader
-     * @param lireFeature
-     * @return the maximum distance found for normalizing.
-     * @throws java.io.IOException
-     */
-    protected float findSimilar(IndexReader reader, ImageInfo imageInfo) throws IOException {
-        float maxDistance = -1f, overallMaxDistance = -1f;
-        float tmpDistance = 0f;
-        // clear result set ...
-        docs.clear();
-        // Needed for check whether the document is deleted.
-        Bits liveDocs = MultiFields.getLiveDocs(reader);
-
-
-        int docs = reader.numDocs();
-        Document d = null;
-        for (int i = 0; i < docs; i++) {
-            if (reader.hasDeletions() && !liveDocs.get(i)) continue; // if it is deleted, just ignore it.
-
-            d = reader.document(i);
-            tmpDistance = getDistance(d, imageInfo);
-//            if (distance < 0 || Float.isNaN(distance))
-//                System.out.println("X");
-            assert (tmpDistance >= 0);
-            // calculate the overall max distance to normalize score afterwards
-            if (overallMaxDistance < tmpDistance) {
-                overallMaxDistance = tmpDistance;
-            }
-            // if it is the first document:
-            if (maxDistance < 0) {
-                maxDistance = tmpDistance;
-            }
-            // if the array is not full yet:
-            if (this.docs.size() < maxHits) {
-                this.docs.add(new SimpleResult(tmpDistance, d, i));
-                if (tmpDistance > maxDistance) maxDistance = tmpDistance;
-            } else if (tmpDistance < maxDistance) {
-                // if it is nearer to the sample than at least on of the current set:
-                // remove the last one ...
-                this.docs.remove(this.docs.last());
-                // add the new one ...
-                this.docs.add(new SimpleResult(tmpDistance, d, i));
-                // and set our new distance border ...
-                maxDistance = this.docs.last().getDistance();
-            }
-        }
-        return maxDistance;
-    }
-
-    protected float getDistance(Document d, ImageInfo imageInfo) {
-
-        Double lng = null, lat = null;
-        
-        String lngText = d.get(DocumentBuilder.FIELD_NAME_LNG);
-        String latText = d.get(DocumentBuilder.FIELD_NAME_LAT);
-        
-        try {
-        	lng = Double.parseDouble(lngText);
-        	lat = Double.parseDouble(latText);
-        } catch (Exception e) {}
-        
-        if (lng == null && lat == null) return 0;
-        
-        Double lngQuery = null, latQuery = null;
-        
-        try {
-        	lngQuery = Double.parseDouble(imageInfo.getLng());
-        	latQuery = Double.parseDouble(imageInfo.getLat());
-        } catch (Exception e) {}
-        
-        if (lngQuery == null && latQuery == null) return 0;
-        
-        return (float)Math.sqrt((Math.pow(lngQuery - lng, 2d) + Math.pow(latQuery - lat, 2d)));
-    }
-
-    public ImageDuplicates findDuplicates(IndexReader reader) throws IOException {
-    	throw new UnsupportedOperationException();
     }
 
     public String toString() {

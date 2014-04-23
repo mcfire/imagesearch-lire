@@ -68,16 +68,52 @@ import org.wltea.analyzer.lucene.IKAnalyzer;
  */
 public class KeyWordsImageSearcher extends AbstractImageSearcher {
 	
+	//最大检索结果数量
     private int numMaxHits;
+    //查询解析器
     MultiFieldQueryParser qp;
 
     public KeyWordsImageSearcher(int numMaxHits) {
     	this.numMaxHits = numMaxHits;
+    	//构建支持中文分词的查询解析器
     	qp = new MultiFieldQueryParser(LuceneUtils.LUCENE_VERSION, 
     						new String[]{DocumentBuilder.FIELD_NAME_TITLE, 
     									DocumentBuilder.FIELD_NAME_TAGS,
     									DocumentBuilder.FIELD_NAME_LOCATION}, 
     									new IKAnalyzer());
+    }
+    
+    public ImageSearchHits search(BufferedImage image, ImageInfo imageInfo, IndexReader reader) throws IOException {
+    	
+    	if (imageInfo.getTitle() == null || imageInfo.getTitle().length() == 0) return null;
+    	
+    	SimpleImageSearchHits sh = null;
+    	//由Lucene的IndexReader创建IndexSearcher
+        IndexSearcher isearcher = new IndexSearcher(reader);
+        //图像的标题中存放的是用户的语音命令。
+        String queryString = imageInfo.getTitle();
+        Query tq = null;
+        try {
+        	//对语音关键词进行分词，返回查询对象
+            tq = qp.parse(queryString);
+            //进行文档查询
+            TopDocs docs = isearcher.search(tq, numMaxHits);
+            LinkedList<SimpleResult> res = new LinkedList<SimpleResult>();
+            float maxDistance = 0;
+            //将查询对象的类型进行转换，同时找到特征距离最近的文档
+            for (int i = 0; i < docs.scoreDocs.length; i++) {
+                float d = 1f / docs.scoreDocs[i].score;
+                maxDistance = Math.max(d, maxDistance);
+                SimpleResult sr = new SimpleResult(d, reader.document(docs.scoreDocs[i].doc), i);
+                res.add(sr);
+            }
+            //构建查询结果
+            sh = new SimpleImageSearchHits(res, maxDistance);
+        } catch (ParseException e) {
+            System.err.println(queryString);
+            e.printStackTrace();
+        }
+        return sh;
     }
 
     public ImageSearchHits search(BufferedImage image, IndexReader reader) throws IOException {
@@ -89,33 +125,6 @@ public class KeyWordsImageSearcher extends AbstractImageSearcher {
     					null, DocumentBuilder.FIELD_NAME_TAGS, null);
     	BufferedImage image = null;
         return this.search(image, imageInfo, reader);
-    }
-    
-    public ImageSearchHits search(BufferedImage image, ImageInfo imageInfo, IndexReader reader) throws IOException {
-    	
-    	if (imageInfo.getTitle() == null || imageInfo.getTitle().length() == 0) return null;
-    	
-    	SimpleImageSearchHits sh = null;
-        IndexSearcher isearcher = new IndexSearcher(reader);
-        String queryString = imageInfo.getTitle();
-        Query tq = null;
-        try {
-            tq = qp.parse(queryString);
-            TopDocs docs = isearcher.search(tq, numMaxHits);
-            LinkedList<SimpleResult> res = new LinkedList<SimpleResult>();
-            float maxDistance = 0;
-            for (int i = 0; i < docs.scoreDocs.length; i++) {
-                float d = 1f / docs.scoreDocs[i].score;
-                maxDistance = Math.max(d, maxDistance);
-                SimpleResult sr = new SimpleResult(d, reader.document(docs.scoreDocs[i].doc), i);
-                res.add(sr);
-            }
-            sh = new SimpleImageSearchHits(res, maxDistance);
-        } catch (ParseException e) {
-            System.err.println(queryString);
-            e.printStackTrace();
-        }
-        return sh;
     }
 
     public ImageDuplicates findDuplicates(IndexReader reader) throws IOException {
