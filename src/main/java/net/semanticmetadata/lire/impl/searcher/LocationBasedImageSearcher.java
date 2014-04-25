@@ -43,6 +43,7 @@ package net.semanticmetadata.lire.impl.searcher;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.TreeSet;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.semanticmetadata.lire.AbstractImageSearcher;
@@ -53,6 +54,7 @@ import net.semanticmetadata.lire.impl.SimpleImageSearchHits;
 import net.semanticmetadata.lire.impl.SimpleResult;
 import net.semanticmetadata.lire.indexing.parallel.ImageInfo;
 import net.semanticmetadata.lire.indexing.parallel.WorkItem;
+import net.semanticmetadata.lire.utils.GeoUtils;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.document.Document;
@@ -71,6 +73,8 @@ public class LocationBasedImageSearcher extends AbstractImageSearcher {
     private int maxHits = 10;
     //检索结果列表
     protected TreeSet<SimpleResult> docs;
+    //最大距离阀值
+    private float threshold = 1f;
 
     public LocationBasedImageSearcher(int maxHits) {
         this.maxHits = maxHits;
@@ -109,6 +113,8 @@ public class LocationBasedImageSearcher extends AbstractImageSearcher {
 
             d = reader.document(i);//读取文档
             tmpDistance = getDistance(d, imageInfo);//计算文档与检索对象之间的距离
+            //若距离大于阀值，则视为无效距离。不作为检索特征。
+            if (tmpDistance < 0 || tmpDistance > this.threshold) continue;
 
             //根据当前距离设置全局最大距离
             if (allMaxDistance < tmpDistance) {
@@ -138,30 +144,30 @@ public class LocationBasedImageSearcher extends AbstractImageSearcher {
     //计算文档和待检索图像之间的地理位置距离
     protected float getDistance(Document doc, ImageInfo imageInfo) {
 
-        Double lng = null, lat = null;
         //从文档中提取地理位置信息
-        String lngText = doc.get(DocumentBuilder.FIELD_NAME_LNG);
         String latText = doc.get(DocumentBuilder.FIELD_NAME_LAT);
+        String lngText = doc.get(DocumentBuilder.FIELD_NAME_LNG);
         
+        if (logger.isLoggable(Level.INFO)) {
+        	logger.info("calcute distance:(" + latText + ", " + lngText
+        			+ ") and (" + imageInfo.getLat() + ", " + imageInfo.getLng() + ")");
+        }
+        
+        if (StringUtils.isEmpty(latText) || StringUtils.isEmpty(lngText)
+        	|| StringUtils.isEmpty(imageInfo.getLat()) || StringUtils.isEmpty(imageInfo.getLng())) {
+        	return -1;
+        }
+
         //将文档中的地理位置信息转换为经纬度，浮点型数值
-        try {
-        	lng = Double.parseDouble(lngText);
-        	lat = Double.parseDouble(latText);
-        } catch (Exception e) {}
-        
-        if (lng == null && lat == null) return 0;
+        double lat = Double.parseDouble(latText);
+        double lng = Double.parseDouble(lngText);
         
       //将待检索图像中的地理位置信息转换为经纬度，浮点型数值
-        Double lngQuery = null, latQuery = null;
-        try {
-        	lngQuery = Double.parseDouble(imageInfo.getLng());
-        	latQuery = Double.parseDouble(imageInfo.getLat());
-        } catch (Exception e) {}
-        
-        if (lngQuery == null && latQuery == null) return 0;
+    	double latQuery = Double.parseDouble(imageInfo.getLat());
+    	double lngQuery = Double.parseDouble(imageInfo.getLng());
         
         //计算并返回两点之间的距离
-        return (float)Math.sqrt((Math.pow(lngQuery - lng, 2d) + Math.pow(latQuery - lat, 2d)));
+        return (float)GeoUtils.getGeoDistance(lat, lng, latQuery, lngQuery);
     }
 
     public ImageDuplicates findDuplicates(IndexReader reader) throws IOException {

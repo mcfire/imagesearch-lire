@@ -448,7 +448,7 @@ public class EdgeHistogramImpl {
         int localIndex = 0;
         //边缘方向类型：竖直、平行、45°角、135°角、无方向。
         int blockEdgeType = 0;
-        //记录每个子图像中像素点数量
+        //记录每个子图像中图像块数量
         int[] localCount = new int[16];
 
         for (int i = 0; i < 16; i++) {
@@ -458,7 +458,7 @@ public class EdgeHistogramImpl {
         //通过getBlockSize计算图像块大小，按照图像块遍历子图像
         for (int j = 0; j <= height - getImageBlockSize(); j += getImageBlockSize()) {
             for (int i = 0; i <= width - getImageBlockSize(); i += getImageBlockSize()) {
-            	//计算当前像素点属于哪个子图像
+            	//计算当前图像块属于哪个子图像
                 localIndex = (int) ((i << 2) / width) + ((int) ((j << 2) / height) << 2);
                 localCount[localIndex]++;
                 
@@ -487,10 +487,10 @@ public class EdgeHistogramImpl {
                 }//switch(EdgeTypeOfBlock)
 
             }//for(i)
-	        //根据子图像的像素数量，对边缘方向进行归一化处理
-	        for (int k = 0; k < 80; k++) {
-	            localImageEdgeHistogram[k] /= localCount[(int) k / 5];
-	        }
+        }
+        //根据子图像的图像块数量，将边缘方向的数量归一化到[0,1]
+        for (int k = 0; k < 80; k++) {
+            localImageEdgeHistogram[k] /= localCount[(int) k / 5];
         }
     }
 
@@ -500,8 +500,6 @@ public class EdgeHistogramImpl {
      *
      * @return returns 80 bins.
      */
-
-
     public int[] setEdgeHistogram() {
         int Edge_HistogramElement[] = new int[80];
         double iQuantValue = 0;

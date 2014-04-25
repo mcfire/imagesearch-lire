@@ -64,7 +64,7 @@ import java.util.StringTokenizer;
 public class SimpleColorHistogram implements LireFeature {
     public static int DEFAULT_NUMBER_OF_BINS = 64;
     public static HistogramType DEFAULT_HISTOGRAM_TYPE = HistogramType.RGB;
-    public static DistanceFunction DEFAULT_DISTANCE_FUNCTION = DistanceFunction.JSD;
+    public static DistanceFunction DEFAULT_DISTANCE_FUNCTION = DistanceFunction.L2;
 
     private static final int[] quantTable = {
             1, 32, 4, 8, 16, 4, 16, 4, 16, 4,            // Hue, Sum - subspace 0,1,2,3,4 for 256 levels
@@ -239,7 +239,7 @@ public class SimpleColorHistogram implements LireFeature {
         for (int i = 0; i < histogram.length; i++) {
             max = Math.max(histogram[i], max);
         }
-        //对每个特征值进行线性归一化
+        //把每个特征值归一化到[0,255]
         for (int i = 0; i < histogram.length; i++) {
             histogram[i] = (histogram[i] * 255) / max;
         }

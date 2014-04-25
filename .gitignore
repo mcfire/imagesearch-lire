@@ -48,3 +48,9 @@ textindextest/*
 wang-index-*/*
 /target
 /test-tmp.dat
+/bovw-test
+/index-bow
+/index-large-new
+/mserIndex
+/test-index-small
+/textindextest
