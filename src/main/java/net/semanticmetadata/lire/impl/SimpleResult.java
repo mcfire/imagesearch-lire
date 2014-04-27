@@ -112,11 +112,7 @@ public class SimpleResult implements Comparable<SimpleResult> {
     	
     	if (this.equals(o)) return 0;
     	
-        int compareValue = (int) Math.signum(distance - ((SimpleResult) o).distance);
-        if (compareValue==0 && indexNumber != o.indexNumber) {
-            return (int) Math.signum(indexNumber-o.indexNumber);
-        }
-        return compareValue;
+    	return new Double(distance).compareTo(new Double(((SimpleResult) o).distance));
     }
 
     @Override
@@ -124,8 +120,8 @@ public class SimpleResult implements Comparable<SimpleResult> {
         // it's not the same if it's not the same class.
         if (! (obj instanceof SimpleResult)) return false;
         // it's the same if the document is the same, regardless of the distance.
-        String id = document.get(DocumentBuilder.FIELD_NAME_IDENTIFIER);
-        String targetId = ((SimpleResult)obj).document.get(DocumentBuilder.FIELD_NAME_IDENTIFIER);
+        String id = document.get(DocumentBuilder.FIELD_NAME_DBID);
+        String targetId = ((SimpleResult)obj).document.get(DocumentBuilder.FIELD_NAME_DBID);
         
         if (id != null && id.equals(targetId)) return true;
         

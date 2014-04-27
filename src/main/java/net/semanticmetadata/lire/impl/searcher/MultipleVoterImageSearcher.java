@@ -71,8 +71,8 @@ public class MultipleVoterImageSearcher extends AbstractImageSearcher {
         	for (int i = 0; i < result.length(); i++) {
         		Document doc = result.doc(i);
         		//读取文档ID
-        		String id = doc.get(DocumentBuilder.FIELD_NAME_IDENTIFIER);
-        		SimpleResult record = new SimpleResult(1, doc, i);
+        		String id = doc.get(DocumentBuilder.FIELD_NAME_DBID);
+        		SimpleResult record = new SimpleResult(result.score(i), doc, i);
         		
         		//如果当前结果列表中已包含文档，则返回文档，否则将当前文档加入结果列表
         		if (docs.containsKey(id)) {
@@ -82,22 +82,17 @@ public class MultipleVoterImageSearcher extends AbstractImageSearcher {
         		}
     			
         		//根据文档顺序和检索器权重，计算文档权重
-    			float weight = record.getDistance();
-    			weight = weight + (this.getPositionWeight(i) * searcher.getWeight());
+    			float weight = 1f - record.getDistance();
+    			weight = weight * searcher.getWeight() * this.getPositionWeight(i);
     			
     			//将文档的权重进行更新
-    			record.setDistance(weight);
+    			record.setDistance(record.getDistance() + weight);
         	}
         }
         
         //根据更新后的文档权重，对文档进行排序
         List<SimpleResult> sortedDocs = new ArrayList<SimpleResult>(docs.values());
-        Collections.sort(sortedDocs, new Comparator<SimpleResult> () {
-			@Override
-			public int compare(SimpleResult o1, SimpleResult o2) {
-				return Float.compare(o2.getDistance(), o1.getDistance());
-			}
-        });
+        Collections.sort(sortedDocs, Collections.reverseOrder());
         
         //截取前N文档作为综合检索结果
         List<SimpleResult> resultDocs;
@@ -118,11 +113,11 @@ public class MultipleVoterImageSearcher extends AbstractImageSearcher {
      * @param position
      * @return
      */
-    protected float getPositionWeight(int position) {
+    protected float getPositionWeight(float position) {
     	if (position < 0) {
-    		return 0;
+    		return 0f;
     	}
-    	return 3 / (position + 1);
+    	return 3f / (position + 1f);
     }
 
     public ImageDuplicates findDuplicates(IndexReader reader) throws IOException {
