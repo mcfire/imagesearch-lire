@@ -52,7 +52,7 @@ import net.semanticmetadata.lire.utils.ConversionUtils;
  *
  * @author Mathias Lux, mathias@juggle.at
  */
-public class EdgeHistogram extends EdgeHistogramImpl implements LireFeature {
+public class EdgeHistogram extends EdgeHistogramImpl {
     private int tmp;
 
 

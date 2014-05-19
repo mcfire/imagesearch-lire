@@ -41,12 +41,12 @@
 
 package net.semanticmetadata.lire.imageanalysis.mpeg7;
 
-import net.semanticmetadata.lire.imageanalysis.LireFeature;
-import net.semanticmetadata.lire.utils.ImageUtils;
-
 import java.awt.image.BufferedImage;
 import java.util.Arrays;
 import java.util.StringTokenizer;
+
+import net.semanticmetadata.lire.imageanalysis.LireFeature;
+import net.semanticmetadata.lire.utils.ImageUtils;
 
 /**
  * This class implements the EdgeHistogram descriptor from the MPEG-7 standard.
@@ -58,7 +58,7 @@ import java.util.StringTokenizer;
  * @author Mathias Lux, mathias@juggle.at
  */
 
-public class EdgeHistogramImpl {
+public abstract class EdgeHistogramImpl implements LireFeature {
     public static final int BIN_COUNT = 80;
     private int[] bins = new int[80];
     private int treshold = 11;
@@ -123,7 +123,6 @@ public class EdgeHistogramImpl {
 
     private double[] localImageEdgeHistogram = new double[80];
     private int blockSize = -1;
-    private BufferedImage image;
 
     /**
      * The actual edge histogram.
@@ -136,11 +135,10 @@ public class EdgeHistogramImpl {
      */
 
     public EdgeHistogramImpl(BufferedImage image) {
-        this.image = image;
         width = image.getWidth();
         height = image.getHeight();
 
-        extractFeature();
+        extractFeature(image);
         edgeHistogram = setEdgeHistogram();
     }
 
@@ -150,10 +148,10 @@ public class EdgeHistogramImpl {
         num_block = 1100;
         localImageEdgeHistogram = new double[80];
         blockSize = -1;
-        this.image = ImageUtils.get8BitRGBImage(image);
-        width = image.getWidth();
-        height = image.getHeight();
-        extractFeature();
+        BufferedImage newImage = ImageUtils.get8BitRGBImage(image);
+        width = newImage.getWidth();
+        height = newImage.getHeight();
+        extractFeature(newImage);
         edgeHistogram = setEdgeHistogram();
     }
 
@@ -250,7 +248,7 @@ public class EdgeHistogramImpl {
      * returns returns the grey_level of the pixel
      */
 
-    public void buildImageGreyLevel() {
+    public void buildImageGreyLevel(BufferedImage image) {
         grey_level = new double[(int) width][(int) height];
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
@@ -439,11 +437,11 @@ public class EdgeHistogramImpl {
      * getFourthBlockAVG(int i, int j) on the whole image. returns Local_Edge_Histogram returns the 80 bins
      */
 
-    public void extractFeature() {
+    public void extractFeature(BufferedImage image) {
     	//初始化边缘数量矩阵。矩阵中存放了16个子图像，每个子图像5种边缘方向的共80个特征值。
         Arrays.fill(localImageEdgeHistogram, 0d);
         //将图像转换为灰度图
-        buildImageGreyLevel();
+        buildImageGreyLevel(image);
         //用于指示像素点处于哪个子图像
         int localIndex = 0;
         //边缘方向类型：竖直、平行、45°角、135°角、无方向。

@@ -43,6 +43,7 @@ package net.semanticmetadata.lire.imageanalysis;
 
 
 import java.awt.image.BufferedImage;
+import java.io.Serializable;
 
 /**
  * This is the basic interface for all content based features. It is needed for GenericDocumentBuilder etc.
@@ -51,7 +52,7 @@ import java.awt.image.BufferedImage;
  *
  * @author Mathias Lux, mathias@juggle.at
  */
-public interface LireFeature {
+public interface LireFeature extends Serializable {
     /**
      * Gives a descriptive name of the feature, i.e. a name to show up in benchmarks, menus, UIs, etc.
      * @return the name of the feature.
