@@ -42,7 +42,9 @@ package net.semanticmetadata.lire.impl.searcher;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.TreeSet;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -72,13 +74,13 @@ public class LocationBasedImageSearcher extends AbstractImageSearcher {
     //最大检索结果数量
     private int maxHits = 10;
     //检索结果列表
-    protected TreeSet<SimpleResult> docs;
+    protected List<SimpleResult> docs;
     //最大距离阀值
     private float threshold = 1f;
 
     public LocationBasedImageSearcher(int maxHits) {
         this.maxHits = maxHits;
-        docs = new TreeSet<SimpleResult>();
+        docs = new ArrayList<SimpleResult>();
     }
     
     public ImageSearchHits search(BufferedImage image, ImageInfo imageInfo, IndexReader reader) throws IOException {
@@ -106,9 +108,9 @@ public class LocationBasedImageSearcher extends AbstractImageSearcher {
         //找出当前可用的文档列表，有些文档可能已经被删除
         Bits liveDocs = MultiFields.getLiveDocs(reader);
 
-        int docs = reader.numDocs();
+        int docNumber = reader.numDocs();
         Document d = null;
-        for (int i = 0; i < docs; i++) {
+        for (int i = 0; i < docNumber; i++) {
             if (reader.hasDeletions() && !liveDocs.get(i)) continue; //如果文档已经被删除，则忽略此文档
 
             d = reader.document(i);//读取文档
@@ -126,15 +128,17 @@ public class LocationBasedImageSearcher extends AbstractImageSearcher {
             }
             //当结果数量没有达到指定数量时，向结果中添加当前文档
             if (this.docs.size() < maxHits) {
-                this.docs.add(new SimpleResult(tmpDistance, d, i));
+                this.docs.add(new SimpleResult(tmpDistance, d, i));                
                 if (tmpDistance > maxDistance) maxDistance = tmpDistance;
             //当结果数量大于指定数量，并且当前距离比结果中最大距离更近时
             } else if (tmpDistance < maxDistance) {
             	//将结果中最距离最远的文档替换为当前文档
-                this.docs.remove(this.docs.last());
+                this.docs.remove(this.docs.size() - 1);
                 this.docs.add(new SimpleResult(tmpDistance, d, i));
                 //更新最大距离
-                maxDistance = this.docs.last().getDistance();
+                maxDistance = tmpDistance;
+
+                Collections.sort(docs);
             }
         }
         //将最大距离返回
@@ -147,11 +151,6 @@ public class LocationBasedImageSearcher extends AbstractImageSearcher {
         //从文档中提取地理位置信息
         String latText = doc.get(DocumentBuilder.FIELD_NAME_LAT);
         String lngText = doc.get(DocumentBuilder.FIELD_NAME_LNG);
-        
-        if (logger.isLoggable(Level.INFO)) {
-        	logger.info("calcute distance:(" + latText + ", " + lngText
-        			+ ") and (" + imageInfo.getLat() + ", " + imageInfo.getLng() + ")");
-        }
         
         if (StringUtils.isEmpty(latText) || StringUtils.isEmpty(lngText)
         	|| StringUtils.isEmpty(imageInfo.getLat()) || StringUtils.isEmpty(imageInfo.getLng())) {
@@ -166,6 +165,15 @@ public class LocationBasedImageSearcher extends AbstractImageSearcher {
     	double latQuery = Double.parseDouble(imageInfo.getLat());
     	double lngQuery = Double.parseDouble(imageInfo.getLng());
         
+    	if (Math.abs(lat - latQuery) >= 1 || Math.abs(lng - lngQuery) >= 1) {
+    		return Integer.MAX_VALUE;
+    	}
+        
+        if (logger.isLoggable(Level.INFO)) {
+        	logger.info("calcute distance:(" + latText + ", " + lngText
+        			+ ") and (" + imageInfo.getLat() + ", " + imageInfo.getLng() + ")");
+        }
+    	
         //计算并返回两点之间的距离
         return (float)GeoUtils.getGeoDistance(lat, lng, latQuery, lngQuery);
     }

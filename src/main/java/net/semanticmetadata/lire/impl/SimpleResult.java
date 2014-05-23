@@ -123,8 +123,7 @@ public class SimpleResult implements Comparable<SimpleResult> {
         String id = document.get(DocumentBuilder.FIELD_NAME_DBID);
         String targetId = ((SimpleResult)obj).document.get(DocumentBuilder.FIELD_NAME_DBID);
         
-        if (id != null && id.equals(targetId)) return true;
-        
-        return (document.equals(((SimpleResult)obj).document) && indexNumber == ((SimpleResult)obj).indexNumber);
+        if (id == null || targetId == null) return false;
+        return id.equals(targetId);
     }
 }

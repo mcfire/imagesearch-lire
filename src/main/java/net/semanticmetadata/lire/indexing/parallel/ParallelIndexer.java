@@ -310,9 +310,10 @@ public class ParallelIndexer implements Runnable {
                 }
                 try {
                     if (!locallyEnded) {
-                        ByteArrayInputStream b = new ByteArrayInputStream(tmp.getBuffer());
-                        BufferedImage img = ImageIO.read(b);
-                        Document d = builder.createDocument(img, tmp);
+                    	//TODO
+//                        ByteArrayInputStream b = new ByteArrayInputStream(tmp.getBuffer());
+//                        BufferedImage img = ImageIO.read(b);
+                        Document d = builder.createDocument((BufferedImage)null, tmp);
                         writer.addDocument(d);
                     }
                 } catch (Exception e) {
