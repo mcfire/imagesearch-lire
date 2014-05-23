@@ -32,7 +32,7 @@ public class MultipleVoterImageSearcher extends AbstractImageSearcher {
     
     private List<ImageSearcher> searchers;
 
-    private int maxHits = 10;
+    private int maxHits = 20;
     protected Map<String, SimpleResult> docs;
 
     public MultipleVoterImageSearcher(int maxHits, List<ImageSearcher> searchers) {
@@ -75,8 +75,10 @@ public class MultipleVoterImageSearcher extends AbstractImageSearcher {
         		SimpleResult record = new SimpleResult(result.score(i), doc, i);
         		
         		//如果当前结果列表中已包含文档，则返回文档，否则将当前文档加入结果列表
+        		float od = 0f;
         		if (docs.containsKey(id)) {
         			record = docs.get(id);
+        			od = record.getDistance();
         		} else {
         			docs.put(id, record);
         		}
@@ -86,7 +88,7 @@ public class MultipleVoterImageSearcher extends AbstractImageSearcher {
     			weight = weight * searcher.getWeight() * this.getPositionWeight(i);
     			
     			//将文档的权重进行更新
-    			record.setDistance(record.getDistance() + weight);
+    			record.setDistance(od + weight);
         	}
         }
         
@@ -115,9 +117,9 @@ public class MultipleVoterImageSearcher extends AbstractImageSearcher {
      */
     protected float getPositionWeight(float position) {
     	if (position < 0) {
-    		return 0f;
+    		return 1f;
     	}
-    	return 3f / (position + 1f);
+    	return 1f;
     }
 
     public ImageDuplicates findDuplicates(IndexReader reader) throws IOException {

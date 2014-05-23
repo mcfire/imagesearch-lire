@@ -72,11 +72,11 @@ public class LocationBasedImageSearcher extends AbstractImageSearcher {
     protected Logger logger = Logger.getLogger(getClass().getName());
 
     //最大检索结果数量
-    private int maxHits = 10;
+    private int maxHits = 20;
     //检索结果列表
     protected List<SimpleResult> docs;
     //最大距离阀值
-    private float threshold = 1f;
+    private float threshold = 3;
 
     public LocationBasedImageSearcher(int maxHits) {
         this.maxHits = maxHits;
